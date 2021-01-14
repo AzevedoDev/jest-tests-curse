@@ -1,16 +1,34 @@
 import { find, remove } from 'lodash';
-export default class Cart {
-  items = [];
-  add(item) {
+
+export default function Cart() {
+  let cart = [];
+
+  const add = item => {
     const itemToFind = { product: item.product };
-    if (find(this.items, itemToFind)) {
-      remove(this.items, itemToFind);
+    if (find(cart, itemToFind)) {
+      remove(cart, itemToFind);
     }
-    this.items.push(item);
-  }
-  getTotal() {
-    return this.items.reduce((acc, item) => {
-      return acc + item.quantity * item.product.price;
-    }, 0);
-  }
+    cart.push(item);
+  };
+
+  const removeItem = product => {
+    remove(cart, { product });
+  };
+
+  const getTotal = () =>
+    cart.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
+
+  const resume = () => ({ total: getTotal(), items: cart });
+  const checkout = () => {
+    const { total, items } = resume();
+    cart = [];
+    return { total, items };
+  };
+  return {
+    add,
+    removeItem,
+    getTotal,
+    resume,
+    checkout,
+  };
 }
