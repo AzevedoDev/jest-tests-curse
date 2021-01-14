@@ -69,6 +69,7 @@ describe('Cart', () => {
         quantity: 1,
       });
       expect(cart.resume()).toMatchSnapshot();
+      expect(cart.getTotal()).toBeGreaterThan(0);
     });
     it('should reset cart when checkout is called', () => {
       cart.add({
@@ -81,6 +82,20 @@ describe('Cart', () => {
       });
       cart.checkout();
       expect(cart.getTotal()).toEqual(0);
+    });
+  });
+  describe('special conditions', () => {
+    it('should apply percentage discount quantity above minimum is passed', () => {
+      const condition = {
+        percentage: 30,
+        minimum: 2,
+      };
+      cart.add({
+        product,
+        condition,
+        quantity: 3,
+      });
+      expect(cart.getTotal()).toEqual(74315);
     });
   });
 });

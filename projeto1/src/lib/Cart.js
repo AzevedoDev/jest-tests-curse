@@ -1,4 +1,8 @@
 import { find, remove } from 'lodash';
+import Money from 'dinero.js';
+
+Money.defaultCurrency = 'BRL';
+Money.defaultPrecision = 2;
 
 export default function Cart() {
   let cart = [];
@@ -16,7 +20,16 @@ export default function Cart() {
   };
 
   const getTotal = () =>
-    cart.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
+    cart.reduce((acc, item) => {
+      const { quantity, product, condition } = item;
+      const amount = Money({ amount: acc + quantity * product.price });
+      let discount = Money({ amount: 0 });
+
+      if (condition && condition.percentage && quantity > condition.minimum) {
+        discount = amount.percentage(condition.percentage);
+      }
+      return amount.subtract(discount).getAmount();
+    }, Money({ amount: 0 }).getAmount());
 
   const resume = () => ({ total: getTotal(), items: cart });
   const checkout = () => {
